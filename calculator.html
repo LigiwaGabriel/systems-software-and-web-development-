@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E6E9E2;--panel:#F3F4EF;--ink:#1B2625;--muted:#667370;--key:#FBFBF8;--line:#CBD1C8;
+  --op:#2D4A6B;--opink:#fff;--eq:#C98A00;--eqink:#1B1400;--paper:#FFFFFF;--err:#A33A2A;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141918;--panel:#1C2322;--ink:#E7EDEA;--muted:#8C9996;--key:#27302F;--line:#364140;
+  --op:#4E78A8;--opink:#0E1512;--eq:#E0A526;--eqink:#1B1400;--paper:#232B2A;--err:#E27A68;}}
+:root[data-theme="dark"]{
+  --bg:#141918;--panel:#1C2322;--ink:#E7EDEA;--muted:#8C9996;--key:#27302F;--line:#364140;
+  --op:#4E78A8;--opink:#0E1512;--eq:#E0A526;--eqink:#1B1400;--paper:#232B2A;--err:#E27A68;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);
+  font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:flex;align-items:center;justify-content:center;padding:20px;font-variant-numeric:tabular-nums}
+.wrap{display:flex;gap:20px;width:100%;max-width:760px;align-items:stretch}
+.calc{flex:0 0 340px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px}
+.screen{padding:10px 8px 16px;text-align:right;min-height:112px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.expr{color:var(--muted);font-size:.95rem;min-height:1.4em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val{font-size:3rem;font-weight:500;letter-spacing:-.02em;line-height:1.15;white-space:nowrap}
+.val.err{color:var(--err);font-size:1.4rem;font-weight:500;letter-spacing:0}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+button{font:inherit;color:inherit;cursor:pointer}
+.key{height:62px;border-radius:14px;border:1px solid var(--line);background:var(--key);font-size:1.3rem;font-weight:500;
+  transition:transform .08s ease,filter .12s ease}
+.key:hover{filter:brightness(.97)}
+.key:active,.key.hit{transform:scale(.95)}
+.key.op{background:var(--op);color:var(--opink);border-color:transparent}
+.key.eq{background:var(--eq);color:var(--eqink);border-color:transparent}
+.key.fn{color:var(--muted)}
+button:focus-visible{outline:3px solid var(--eq);outline-offset:2px}
+.tape{flex:1;min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;max-height:560px}
+.tape-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.tape-head h2{margin:0;font-size:1rem;font-weight:600}
+.link{background:none;border:0;color:var(--muted);font-size:.9rem;padding:4px 6px;border-radius:6px;text-decoration:underline}
+.list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1}
+.list li{border-bottom:1px dashed var(--line)}
+.list li button{width:100%;background:none;border:0;text-align:right;padding:10px 4px;border-radius:6px}
+.list li button:hover{background:var(--bg)}
+.list .q{display:block;color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.list .a{display:block;font-size:1.25rem;font-weight:500}
+.empty{color:var(--muted);font-size:.95rem;padding:12px 4px;text-align:left}
+@media (max-width:660px){
+  body{align-items:flex-start;padding:12px}
+  .wrap{flex-direction:column}
+  .calc{flex:none}
+  .tape{max-height:260px}
+}
+@media (prefers-reduced-motion:reduce){.key{transition:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="calc" aria-label="Calculator">
+    <div class="screen" aria-live="polite">
+      <div class="expr" id="expr"></div>
+      <div class="val" id="val">0</div>
+    </div>
+    <div class="keys" id="keys">
+      <button class="key fn" data-k="C" aria-label="Clear all">C</button>
+      <button class="key fn" data-k="back" aria-label="Delete last digit">⌫</button>
+      <button class="key fn" data-k="%" aria-label="Percent">%</button>
+      <button class="key op" data-k="/" aria-label="Divide">÷</button>
+      <button class="key" data-k="7">7</button>
+      <button class="key" data-k="8">8</button>
+      <button class="key" data-k="9">9</button>
+      <button class="key op" data-k="*" aria-label="Multiply">×</button>
+      <button class="key" data-k="4">4</button>
+      <button class="key" data-k="5">5</button>
+      <button class="key" data-k="6">6</button>
+      <button class="key op" data-k="-" aria-label="Subtract">−</button>
+      <button class="key" data-k="1">1</button>
+      <button class="key" data-k="2">2</button>
+      <button class="key" data-k="3">3</button>
+      <button class="key op" data-k="+" aria-label="Add">+</button>
+      <button class="key fn" data-k="neg" aria-label="Change sign">±</button>
+      <button class="key" data-k="0">0</button>
+      <button class="key" data-k=".">.</button>
+      <button class="key eq" data-k="=" aria-label="Equals">=</button>
+    </div>
+  </section>
+  <aside class="tape" aria-label="History">
+    <div class="tape-head">
+      <h2>History</h2>
+      <button class="link" id="clearTape">Clear history</button>
+    </div>
+    <ul class="list" id="list"></ul>
+  </aside>
+</main>
+<script>
+(function(){
+  var SYM={'+':'+','-':'−','*':'×','/':'÷'};
+  var cur='0',acc=null,op=null,fresh=false,expr='',err='',tape=[];
+  var $val=document.getElementById('val'),$expr=document.getElementById('expr'),$list=document.getElementById('list');
+
+  try{var s=localStorage.getItem('calc-tape');if(s){var p=JSON.parse(s);if(Array.isArray(p))tape=p.slice(0,30);}}catch(e){}
+  function save(){try{localStorage.setItem('calc-tape',JSON.stringify(tape));}catch(e){}}
+
+  function num(s){return parseFloat(s);}
+  function tidy(n){return parseFloat(n.toPrecision(12));}
+  function group(s){
+    if(s.indexOf('e')>-1)return s;
+    var neg=s[0]==='-'?'-':'',t=neg?s.slice(1):s,parts=t.split('.');
+    parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+    return neg+parts.join('.');
+  }
+  function compute(a,b,o){
+    if(o==='+')return a+b;
+    if(o==='-')return a-b;
+    if(o==='*')return a*b;
+    if(o==='/')return b===0?NaN:a/b;
+  }
+  function fail(){
+    err="Can't divide by zero";cur='0';acc=null;op=null;fresh=true;expr='';
+  }
+  // finish the pending operation, record it on the tape, return result (or null on error)
+  function resolve(){
+    var b=num(cur),r=compute(acc,b,op);
+    if(isNaN(r)){fail();return null;}
+    r=tidy(r);
+    var q=group(String(acc))+' '+SYM[op]+' '+group(String(b));
+    tape.unshift({q:q,a:String(r)});tape=tape.slice(0,30);save();
+    return {r:r,q:q};
+  }
+
+  function digit(d){
+    err='';
+    if(fresh){cur='0';fresh=false;if(!op)expr='';}
+    if(cur==='0')cur=d;
+    else if(cur.replace(/[-.]/g,'').length<15)cur+=d;
+  }
+  function dot(){
+    err='';
+    if(fresh){cur='0';fresh=false;if(!op)expr='';}
+    if(cur.indexOf('.')<0)cur+='.';
+  }
+  function setOp(o){
+    if(err){err='';}
+    if(op&&fresh){op=o;expr=group(String(acc))+' '+SYM[o];return;}
+    if(op){
+      var res=resolve();if(!res)return;
+      acc=res.r;cur=String(res.r);
+    }else acc=num(cur);
+    op=o;fresh=true;expr=group(String(acc))+' '+SYM[o];
+  }
+  function equals(){
+    if(!op||fresh&&acc===null)return;
+    var res=resolve();if(!res)return;
+    expr=res.q+' =';cur=String(res.r);acc=null;op=null;fresh=true;
+  }
+  function percent(){
+    var n=num(cur);
+    n=(op&&acc!==null)?acc*n/100:n/100;
+    cur=String(tidy(n));
+  }
+  function neg(){if(cur!=='0'){cur=cur[0]==='-'?cur.slice(1):'-'+cur;}}
+  function back(){
+    if(fresh)return;
+    cur=(cur.length>1&&!(cur.length===2&&cur[0]==='-'))?cur.slice(0,-1):'0';
+  }
+  function clear(){cur='0';acc=null;op=null;fresh=false;expr='';err='';}
+
+  function press(k){
+    if(k>='0'&&k<='9'&&k.length===1)digit(k);
+    else if(k==='.')dot();
+    else if(SYM[k])setOp(k);
+    else if(k==='=')equals();
+    else if(k==='%')percent();
+    else if(k==='neg')neg();
+    else if(k==='back')back();
+    else if(k==='C')clear();
+    render();
+  }
+
+  function render(){
+    var t=err?err:group(cur);
+    $val.textContent=t;
+    $val.className='val'+(err?' err':'');
+    if(!err){
+      var n=t.length;
+      $val.style.fontSize=n>14?'1.7rem':n>11?'2.2rem':n>8?'2.6rem':'3rem';
+    }else $val.style.fontSize='';
+    $expr.textContent=expr;
+    renderTape();
+  }
+  function renderTape(){
+    $list.innerHTML='';
+    if(!tape.length){
+      var e=document.createElement('li');e.className='empty';
+      e.textContent='Finished calculations appear here. Select one to reuse its result.';
+      $list.appendChild(e);return;
+    }
+    tape.forEach(function(it){
+      var li=document.createElement('li'),b=document.createElement('button');
+      b.type='button';b.setAttribute('aria-label','Use result '+it.a);
+      var q=document.createElement('span');q.className='q';q.textContent=it.q+' =';
+      var a=document.createElement('span');a.className='a';a.textContent=group(it.a);
+      b.appendChild(q);b.appendChild(a);
+      b.addEventListener('click',function(){err='';cur=it.a;fresh=true;if(!op)expr='';render();});
+      li.appendChild(b);$list.appendChild(li);
+    });
+  }
+
+  document.getElementById('keys').addEventListener('click',function(ev){
+    var b=ev.target.closest('button[data-k]');if(b)press(b.getAttribute('data-k'));
+  });
+  document.getElementById('clearTape').addEventListener('click',function(){tape=[];save();renderTape();});
+
+  document.addEventListener('keydown',function(ev){
+    if(ev.ctrlKey||ev.metaKey||ev.altKey)return;
+    var k=ev.key,m=null;
+    if(/^[0-9]$/.test(k))m=k;
+    else if(k==='.'||k===',')m='.';
+    else if(k==='+'||k==='-'||k==='*'||k==='/')m=k;
+    else if(k==='x'||k==='X')m='*';
+    else if(k==='Enter'||k==='=')m='=';
+    else if(k==='Backspace')m='back';
+    else if(k==='Escape'||k==='c'||k==='C')m='C';
+    else if(k==='%')m='%';
+    if(m===null)return;
+    // let Enter activate a focused tape button instead of equals
+    if(k==='Enter'&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.list'))return;
+    ev.preventDefault();
+    press(m);
+    var el=document.querySelector('[data-k="'+m+'"]');
+    if(el){el.classList.add('hit');setTimeout(function(){el.classList.remove('hit');},110);}
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
