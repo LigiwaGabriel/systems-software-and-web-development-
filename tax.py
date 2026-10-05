@@ -98,7 +98,7 @@ def calc_vat(amount: Decimal, rate: Decimal, include: bool) -> tuple[Decimal, De
     return amount, tax, amount + tax
 
 
-# sa
+# s
 
 def load_config() -> dict:
     cfg = {"currency": "$", "brackets": SAMPLE_BRACKETS}
