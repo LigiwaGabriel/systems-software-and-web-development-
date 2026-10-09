@@ -122,7 +122,7 @@ def to_brackets(raw: list) -> list[Bracket]:
     return [Bracket(None if u is None else Decimal(str(u)), Decimal(str(r))) for u, r in raw]
 
 
-# -
+# 
 
 def ask_decimal(prompt: str, default: Decimal | None = None) -> Decimal:
     while True:
