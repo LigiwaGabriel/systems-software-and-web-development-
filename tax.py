@@ -152,7 +152,7 @@ def show_brackets(brackets: list[Bracket], cur: str) -> None:
             lower = b.upper
 
 
-# ---------- menu actio
+# ---------- menu acti
 
 def income_tax_menu(cfg: dict) -> None:
     cur = cfg["currency"]
