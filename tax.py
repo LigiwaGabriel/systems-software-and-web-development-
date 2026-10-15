@@ -15,7 +15,7 @@ CONFIG_FILE = Path(__file__).with_name("tax_config.json")
 CENT = Decimal("0.01")
 HUNDRED = Decimal(100)
 
-# (upper limit, rate %). An upper limit of None means "no limit" (last bra
+# (upper limit, rate %). An upper limit of None means "no limit" (last b
 SAMPLE_BRACKETS = [(10000, 0), (30000, 10), (80000, 20), (None, 30)
 
 
