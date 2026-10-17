@@ -1,4 +1,4 @@
-#!/usr/bin/env pytho
+#!/usr/bin/env pyt
 """Tax calculator: progressive income tax and VAT / sales tax.
 
 Run it with:  python tax_calculator.py
