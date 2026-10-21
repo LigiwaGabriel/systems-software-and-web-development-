@@ -3,7 +3,7 @@
 
 Run it with:  python tax_calculator.py
 The bracket rates below are placeholders. Edit them from the menu (option 3)
-and they are saved to tax_config.json next to the scr
+and they are saved to tax_config.json next to the sc
 """
 
 import json
