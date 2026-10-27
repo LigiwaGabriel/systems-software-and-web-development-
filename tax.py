@@ -3,7 +3,7 @@
 
 Run it with:  python tax_calculator.py
 The bracket rates below are placeholders. Edit them from the menu (option 3)
-and they are sav
+and they are sa
 ""
 
 import json
