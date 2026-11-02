@@ -2,7 +2,7 @@
 """Tax calculator: progressive income tax and VAT / sales
 
 Run it with:  python tax_calculator.py
-The bracket rates below are placeholders. Edit them 
+The bracket rates below are placeholders. Edit the
 
 ""
 
