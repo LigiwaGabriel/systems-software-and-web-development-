@@ -2,7 +2,7 @@
 """Tax calculator: progressive income tax and VAT / sales
 
 Run it with:  python tax_calculator.py
-The bracket rates belo
+The bracket rates be
 """
 
 import json
