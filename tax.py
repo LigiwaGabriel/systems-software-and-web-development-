@@ -2,7 +2,6 @@
 """Tax calculator: progressive income tax and VAT / sales
 
 Run it with:  python tax_calculator.py
-T
 """
 
 import json
